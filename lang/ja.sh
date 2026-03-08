@@ -20,7 +20,7 @@ t() {
         "menu_rollback") echo "以前のスナップショットにロールバック" ;;
         "menu_delete") echo "スナップショットを削除" ;;
         "menu_restart") echo "バックアップして OpenClaw を再起動" ;;
-        "menu_language") echo "言語を変更" ;;
+        "menu_language") echo "言語を変更 [language]" ;;
         "menu_uninstall") echo "clawback をアンインストール" ;;
         "menu_exit") echo "終了 [ESC]" ;;
         

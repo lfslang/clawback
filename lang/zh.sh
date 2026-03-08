@@ -19,7 +19,7 @@ t() {
         "menu_rollback") echo "回滚到之前的快照" ;;
         "menu_delete") echo "删除快照" ;;
         "menu_restart") echo "备份并重启 OpenClaw" ;;
-        "menu_language") echo "切换语言" ;;
+        "menu_language") echo "切换语言 [language]" ;;
         "menu_uninstall") echo "卸载 clawback" ;;
         "menu_exit") echo "退出 [ESC]" ;;
         

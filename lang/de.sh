@@ -20,7 +20,7 @@ t() {
         "menu_rollback") echo "Zu vorherigem Snapshot zurücksetzen" ;;
         "menu_delete") echo "Snapshot löschen" ;;
         "menu_restart") echo "Backup und OpenClaw neu starten" ;;
-        "menu_language") echo "Sprache ändern" ;;
+        "menu_language") echo "Sprache ändern [language]" ;;
         "menu_uninstall") echo "clawback deinstallieren" ;;
         "menu_exit") echo "Beenden [ESC]" ;;
         

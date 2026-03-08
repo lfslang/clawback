@@ -20,7 +20,7 @@ t() {
         "menu_rollback") echo "이전 스냅샷으로 롤백" ;;
         "menu_delete") echo "스냅샷 삭제" ;;
         "menu_restart") echo "백업하고 OpenClaw 재시작" ;;
-        "menu_language") echo "언어 변경" ;;
+        "menu_language") echo "언어 변경 [language]" ;;
         "menu_uninstall") echo "clawback 제거" ;;
         "menu_exit") echo "종료 [ESC]" ;;
         
