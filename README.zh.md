@@ -6,7 +6,7 @@
 
 **OpenClaw 配置回滚工具** - 多语言 TUI（终端用户界面）
 
-[English](README.md) | [日本語](README.ja.md)
+[English](README.md) 
 
 ---
 

@@ -6,7 +6,7 @@
 
 **OpenClaw Configuration Rollback Tool** - Multi-language TUI (Terminal User Interface)
 
-[简体中文](README.zh.md) | [日本語](README.ja.md)
+[简体中文](README.zh.md) 
 
 ---
 
