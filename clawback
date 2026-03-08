@@ -281,7 +281,7 @@ do_create() {
     fi
     
     echo "  $(t "create_label_prompt")"
-    echo "  [ESC] 取消并返回"
+    echo "  $(t "esc_cancel")"
     echo ""
     echo -n "  $(t "label"): "
     
@@ -366,8 +366,8 @@ do_list() {
     while true; do
         show_header
         echo "  $(t "list_title")"
-        echo "  [V]查看 [Q]退出查看模式"
-        echo "  [R]回滚 [D]删除 [C]对比 [ESC]返回"
+        echo "  $(t "list_navigate")"
+        echo "  $(t "detail_navigate")"
         echo ""
         
         # 显示快照列表，圆点指示选中
@@ -440,7 +440,7 @@ do_list() {
                 ;;
             [Vv])
                 clear_screen
-                echo "$(t "view_full"): $(basename "${files[$selected]}") (按 Q 返回)..."
+                echo "$(t "view_full"): $(basename "${files[$selected]}") ($(t "press_q_back")...)"
                 less -N "${files[$selected]}"
                 ;;
             [Cc])
