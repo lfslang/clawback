@@ -1,4 +1,7 @@
-# Clawback - 日志和状态管理系统
+#!/bin/bash
+# Copyright (c) 2026 Liufs <1936638@qq.com>
+# Licensed under the MIT License
+
 
 # 确定用户主目录（多重回退）
 if [ -z "$HOME" ]; then

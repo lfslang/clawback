@@ -1,4 +1,7 @@
-# OpenClaw Config Rollback Manager
+#!/bin/bash
+# Copyright (c) 2026 Liufs <1936638@qq.com>
+# Licensed under the MIT License
+
 # 智能备份 + TUI 交互
 
 # 不在此设置 set -e，避免 TUI 错误导致退出

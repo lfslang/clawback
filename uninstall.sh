@@ -1,4 +1,7 @@
-# Clawback - Uninstaller with verification and logging
+#!/bin/bash
+# Copyright (c) 2026 Liufs <1936638@qq.com>
+# Licensed under the MIT License
+
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 

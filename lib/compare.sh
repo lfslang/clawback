@@ -1,4 +1,7 @@
-# Clawback 配置对比模块 - 修复版
+#!/bin/bash
+# Copyright (c) 2026 Liufs <1936638@qq.com>
+# Licensed under the MIT License
+
 # 基于回滚视角的差异对比
 
 # 加载语言包（如果可用）
