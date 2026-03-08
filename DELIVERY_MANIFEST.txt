@@ -1,0 +1,26 @@
+# Clawback 交付物清单
+# 这些文件是安装时需要的，其他文件属于开发环境
+
+DELIVERY_FILES=(
+    "clawback"              # 主程序
+    "uninstall.sh"          # 卸载脚本
+    "lib/core.sh"           # 核心库
+    "lib/log.sh"            # 日志库
+    "lib/compare.sh"        # 对比功能库
+    "lang/en.sh"            # 英文语言包
+    "lang/zh.sh"            # 中文语言包
+    "lang/ja.sh"            # 日文语言包
+    "lang/de.sh"            # 德文语言包
+    "lang/es.sh"            # 西班牙文语言包
+    "lang/fr.sh"            # 法文语言包
+    "lang/ko.sh"            # 韩文语言包
+    "lang/template.sh"      # 语言包模板
+)
+
+# 开发环境文件（不应包含在交付物中）
+DEV_FILES_EXCLUDE=(
+    ".git/"                 # Git 仓库
+    "VERSION_MANAGEMENT.md" # 开发文档
+    "*.bak"                 # 备份文件
+    "*.log"                 # 日志文件
+)

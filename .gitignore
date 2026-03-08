@@ -1,0 +1,10 @@
+# 开发环境文件（不提交到 git）
+*.bak
+*.log
+.DS_Store
+*.swp
+*~
+
+# 开发文档（在 docs/ 目录管理）
+VERSION_MANAGEMENT.md
+DEV_GUIDE.md

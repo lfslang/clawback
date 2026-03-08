@@ -1,0 +1,4 @@
+# 标记开发文件（导出时排除）
+.gitattributes export-ignore
+.gitignore export-ignore
+DELIVERY_MANIFEST.txt export-ignore
