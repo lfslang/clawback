@@ -1,0 +1,754 @@
+#!/bin/bash
+# Clawback - OpenClaw Config Rollback
+# Multi-language TUI
+# Version: 0.9.111
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/lib/core.sh" 2>/dev/null || source "${SCRIPT_DIR}/lib.sh"
+source "${SCRIPT_DIR}/lib/log.sh" 2>/dev/null || true
+
+# 加载指定语言包
+load_language_file() {
+    local lang="${1:-en}"
+    local lang_file="${SCRIPT_DIR}/lang/${lang}.sh"
+    if [ -f "$lang_file" ]; then
+        source "$lang_file" 2>/dev/null || true
+    fi
+}
+
+# 动态加载语言包 - 先加载默认语言，再加载用户选择的语言
+load_language_files() {
+    # 先加载默认语言 (en) 作为回退
+    load_language_file "en"
+    
+    # 检查用户配置的语言
+    local user_lang=""
+    if [ -n "$CLAWBACK_LANG" ]; then
+        user_lang="$CLAWBACK_LANG"
+    elif [ -f "${CONFIG_DIR}/.clawback-lang" ]; then
+        user_lang=$(cat "${CONFIG_DIR}/.clawback-lang" 2>/dev/null)
+    fi
+    
+    # 如果用户语言不是英文且存在，则加载覆盖
+    if [ -n "$user_lang" ] && [ "$user_lang" != "en" ]; then
+        load_language_file "$user_lang"
+    fi
+}
+
+# 加载语言配置（从文件读取到变量）
+load_language() {
+    if [ -f "$LANG_FILE" ]; then
+        CLAWBACK_LANG=$(cat "$LANG_FILE")
+        export CLAWBACK_LANG
+    fi
+}
+
+# 保存语言配置
+save_language() {
+    echo "$CLAWBACK_LANG" > "$LANG_FILE"
+}
+
+# 先设置 LANG_FILE 路径
+LANG_FILE="${CONFIG_DIR:-$HOME/.openclaw}/.clawback-lang"
+
+# 加载语言配置
+load_language
+
+# 加载动态语言包
+load_language_files
+
+VERSION="0.9.166"
+
+# 确保 HOME 变量设置
+if [ -z "$HOME" ]; then
+    HOME=$(getent passwd "$(whoami)" | cut -d: -f6 2>/dev/null)
+fi
+if [ -z "$HOME" ]; then
+    HOME="$(pwd)"
+fi
+
+# 处理命令行参数
+if [ "$1" = "--details" ] || [ "$1" = "-d" ]; then
+    init_logging 2>/dev/null || true
+    show_install_details 2>/dev/null || echo "Installation details not available"
+    exit 0
+fi
+
+if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
+    echo "Clawback - OpenClaw Config Rollback"
+    echo ""
+    echo "Usage:"
+    echo "    clawback              Start interactive TUI"
+    echo "    clawback --details    Show installation details"
+    echo "    clawback --help       Show this help"
+    echo ""
+    echo "Environment:"
+    echo "    CLAWBACK_LANG         Set language (en, zh, ja, ko, fr, de, es)"
+    echo ""
+    exit 0
+fi
+
+# 清屏
+clear_screen() {
+    printf '\033[2J\033[H'
+}
+
+# 显示标题
+show_header() {
+    clear_screen
+    echo ""
+    echo "  $(t "title")"
+    echo "  ────────────────────────────────────"
+    echo "  Version: $VERSION"
+    echo ""
+}
+
+# 颜色定义 - 使用 ANSI 转义序列
+setup_terminal_colors() {
+    COLOR_GREEN='\033[32m'
+    COLOR_RESET='\033[0m'
+}
+
+# 初始化颜色
+setup_terminal_colors
+
+# 菜单项 - 保持括号位置固定，只有圆点位置变化
+menu_item() {
+    if [ "$1" = "true" ]; then
+        printf "    [\033[32m●\033[0m ] %s\n" "$2"
+    else
+        echo "    [  ] $2"
+    fi
+}
+
+# 主菜单
+# 扫描可用语言（内置 + 外部语言包）
+scan_languages() {
+    AVAILABLE_LANGS=("en" "zh")
+    AVAILABLE_LANG_NAMES=("English" "简体中文")
+    
+    # 扫描外部语言包
+    local lang_dir="${SCRIPT_DIR}/lang"
+    if [ -d "$lang_dir" ]; then
+        for lang_file in "$lang_dir"/*.sh; do
+            if [ -f "$lang_file" ]; then
+                local basename=$(basename "$lang_file" .sh)
+                [[ "$basename" == "en" || "$basename" == "zh" || "$basename" == "template" ]] && continue
+                local code=$(grep "^LANG_CODE=" "$lang_file" 2>/dev/null | cut -d'"' -f2)
+                local name=$(grep "^LANG_NAME=" "$lang_file" 2>/dev/null | cut -d'"' -f2)
+                if [ -n "$code" ] && [ -n "$name" ]; then
+                    AVAILABLE_LANGS+=("$code")
+                    AVAILABLE_LANG_NAMES+=("$name")
+                fi
+            fi
+        done
+    fi
+}
+
+# 设置语言（带参数版本，用于语言选择）
+set_language() {
+    local lang="${1:-en}"
+    CLAWBACK_LANG="$lang"
+    export CLAWBACK_LANG
+}
+
+# 写入语言配置到文件
+write_language() {
+    echo "$CLAWBACK_LANG" > "$LANG_FILE"
+}
+
+select_language() {
+    scan_languages
+    local selected=0
+    local key
+    while true; do
+        clear_screen
+        echo ""
+        echo "  Clawback - $(t "menu_language")"
+        echo "  ─────────────────────────────────────────"
+        echo ""
+        for i in "${!AVAILABLE_LANGS[@]}"; do
+            if [ $i -eq $selected ]; then
+                echo -e "    [\033[32m●\033[0m ] ${AVAILABLE_LANG_NAMES[$i]}"
+            else
+                echo "    [  ] ${AVAILABLE_LANG_NAMES[$i]}"
+            fi
+        done
+        echo ""
+        IFS= read -rs -n3 key
+        case "$key" in
+            $'\e[A') selected=$(( (selected - 1 + ${#AVAILABLE_LANGS[@]}) % ${#AVAILABLE_LANGS[@]} )) ;;
+            $'\e[B') selected=$(( (selected + 1) % ${#AVAILABLE_LANGS[@]} )) ;;
+            $'\e')
+                # ESC 取消
+                read -rs -t 0.1 -n2 rest 2>/dev/null || true
+                return
+                ;;
+            "")
+                set_language "${AVAILABLE_LANGS[$selected]}"
+                write_language
+                # 重新加载语言包以立即生效
+                load_language_file "${AVAILABLE_LANGS[$selected]}"
+                return
+                ;;
+        esac
+    done
+}
+main_menu() {
+    local options=(
+        "$(t "menu_create")"
+        "$(t "menu_list")"
+        "$(t "menu_language")"
+        "$(t "menu_uninstall")"
+        "$(t "menu_exit")"
+    )
+    local selected=0
+    local key
+    
+    while true; do
+        show_header
+        echo "  $(t "menu_navigate")"
+        echo ""
+        
+        for i in "${!options[@]}"; do
+            if [ $i -eq $selected ]; then
+                menu_item "true" "${options[$i]}"
+            else
+                menu_item "false" "${options[$i]}"
+            fi
+        done
+        
+        echo ""
+        echo "  ────────────────────────────────────"
+        echo "  $(t "config_path"): ${JSON_FILE}"
+        echo "  $(t "snapshots_count"): $(get_snapshot_count)"
+        
+        IFS= read -rs -n1 key
+        
+        # 检查是否是转义序列（ESC 或方向键）
+        if [ "$key" = $'\e' ]; then
+            # 读取剩余的转义序列
+            IFS= read -rs -t 0.1 -n2 rest
+            
+            # 如果只是单独的 ESC（没有后续字符），则退出
+            if [ -z "$rest" ]; then
+                return 4  # 退出菜单的索引
+            fi
+            
+            # 否则是方向键，组合完整序列
+            key="$key$rest"
+        fi
+        
+        case "$key" in
+            $'\e[A')
+                selected=$(( (selected - 1 + ${#options[@]}) % ${#options[@]} ))
+                ;;
+            $'\e[B')
+                selected=$(( (selected + 1) % ${#options[@]} ))
+                ;;
+            "")
+                return $selected
+                ;;
+        esac
+    done
+}
+
+# 创建快照
+do_create() {
+    show_header
+    echo "  $(t "create_title")"
+    echo "  ─────────────────────────────────"
+    echo ""
+    
+    # 检查是否允许创建手动备份（防止短时间内重复创建）
+    if ! can_create_manual_backup; then
+        local last_manual=$(get_last_manual_backup_time)
+        local current_time=$(date +%s)
+        local wait_time=$((MIN_MANUAL_INTERVAL - (current_time - last_manual)))
+        echo "  $(t "create_too_frequent" 2>/dev/null || echo "备份太频繁，请等待 ${wait_time} 秒后再试")"
+        echo ""
+        echo -n "  $(t "continue")"
+        read
+        return
+    fi
+    
+    echo "  $(t "create_label_prompt")"
+    echo "  [ESC] 取消并返回"
+    echo ""
+    echo -n "  $(t "label"): "
+    
+    # 读取输入，支持 ESC 取消
+    local label=""
+    local key
+    while IFS= read -rs -n1 key; do
+        # ESC 键取消
+        if [ "$key" = $'\e' ]; then
+            # 读取剩余的转义序列
+            read -rs -t 0.1 -n2 rest 2>/dev/null || true
+            return
+        fi
+        
+        # 回车键确认
+        if [ "$key" = "" ]; then
+            break
+        fi
+        
+        # 退格键处理
+        if [ "$key" = $'\x7f' ]; then
+            if [ -n "$label" ]; then
+                label="${label%?}"
+                echo -ne "\b \b"
+            fi
+            continue
+        fi
+        
+        # 普通字符
+        if [[ "$key" =~ [[:print:]] ]]; then
+            label="$label$key"
+            echo -n "$key"
+        fi
+    done
+    
+    echo ""
+    
+    # 确保标签不为空
+    if [ -z "$label" ] || [ "${label// /}" = "" ]; then
+        label="manual"
+    fi
+    
+    echo ""
+    local result=$(smart_backup "manual" "$label")
+    
+    if [ -n "$result" ]; then
+        echo "  $(t "create_success"): $result"
+    else
+        echo "  $(t "create_failed")"
+    fi
+    
+    echo ""
+    echo -n "  $(t "continue")"
+    read
+}
+
+# 列表与操作（合并显示）
+do_list() {
+    local files=()
+    local labels=()
+    local selected=0
+    
+    while IFS= read -r f; do
+        [ -n "$f" ] || continue
+        files+=("$f")
+        local name=$(basename "$f" .json)
+        local mtime=$(stat -c "%y" "$f" 2>/dev/null | cut -d'.' -f1 | cut -d' ' -f1,2)
+        local size=$(du -h "$f" 2>/dev/null | cut -f1)
+        labels+=("${name} | ${mtime} | ${size}")
+    done < <(list_snapshots)
+    
+    if [ ${#files[@]} -eq 0 ]; then
+        show_header
+        echo "  $(t "list_empty")"
+        echo ""
+        echo -n "  $(t "continue")"
+        read
+        return
+    fi
+    
+    local key
+    while true; do
+        show_header
+        echo "  $(t "list_title")"
+        echo "  [V]查看 [Q]退出查看模式"
+        echo "  [R]回滚 [D]删除 [C]对比 [ESC]返回"
+        echo ""
+        
+        # 显示快照列表，圆点指示选中
+        for i in "${!labels[@]}"; do
+            if [ $i -eq $selected ]; then
+                echo -e "    [\033[32m●\033[0m ] ${labels[$i]}"
+            else
+                echo "    [  ] ${labels[$i]}"
+            fi
+        done
+        
+        IFS= read -rs -n1 key
+        
+        # 检查是否是转义序列（ESC 或方向键）
+        if [ "$key" = $'\e' ]; then
+            # 读取剩余的转义序列
+            IFS= read -rs -t 0.1 -n2 rest
+            
+            # 如果只是单独的 ESC（没有后续字符），则返回
+            if [ -z "$rest" ]; then
+                return
+            fi
+            
+            # 否则是方向键，组合完整序列
+            key="$key$rest"
+        fi
+        
+        case "$key" in
+            $'\e[A')
+                selected=$(( (selected - 1 + ${#files[@]}) % ${#files[@]} ))
+                ;;
+            $'\e[B')
+                selected=$(( (selected + 1) % ${#files[@]} ))
+                ;;
+            [Rr])
+                confirm_rollback "${files[$selected]}"
+                # 重新加载列表
+                files=()
+                labels=()
+                selected=0
+                while IFS= read -r f; do
+                    [ -n "$f" ] || continue
+                    files+=("$f")
+                    local name=$(basename "$f" .json)
+                    local mtime=$(stat -c "%y" "$f" 2>/dev/null | cut -d'.' -f1 | cut -d' ' -f1,2)
+                    local size=$(du -h "$f" 2>/dev/null | cut -f1)
+                    labels+=("${name} | ${mtime} | ${size}")
+                done < <(list_snapshots)
+                if [ ${#files[@]} -eq 0 ]; then
+                    return
+                fi
+                ;;
+            [Dd])
+                confirm_delete "${files[$selected]}"
+                # 删除后重新加载列表
+                files=()
+                labels=()
+                selected=0
+                while IFS= read -r f; do
+                    [ -n "$f" ] || continue
+                    files+=("$f")
+                    local name=$(basename "$f" .json)
+                    local mtime=$(stat -c "%y" "$f" 2>/dev/null | cut -d'.' -f1 | cut -d' ' -f1,2)
+                    local size=$(du -h "$f" 2>/dev/null | cut -f1)
+                    labels+=("${name} | ${mtime} | ${size}")
+                done < <(list_snapshots)
+                if [ ${#files[@]} -eq 0 ]; then
+                    return
+                fi
+                ;;
+            [Vv])
+                clear_screen
+                echo "$(t "view_full"): $(basename "${files[$selected]}") (按 Q 返回)..."
+                less -N "${files[$selected]}"
+                ;;
+            [Cc])
+                clear_screen
+                compare_config "${files[$selected]}"
+                ;;
+            $'\e')
+                # 方向键处理
+                IFS= read -rs -t 0.1 -n2 rest
+                key="$key$rest"
+                case "$key" in
+                    $'\e[A')
+                        selected=$(( (selected - 1 + ${#files[@]}) % ${#files[@]} ))
+                        ;;
+                    $'\e[B')
+                        selected=$(( (selected + 1) % ${#files[@]} ))
+                        ;;
+                esac
+                ;;
+        esac
+    done
+}
+
+# 详情
+show_detail() {
+    local file="$1"
+    local name=$(basename "$file")
+    
+    show_header
+    echo "  $(t "detail_title")"
+    echo "  ─────────────────────────────────"
+    echo ""
+    echo "  $(t "detail_file"): $name"
+    echo "  $(t "detail_size"): $(du -h "$file" | cut -f1)"
+    echo "  $(t "detail_modified"): $(stat -c "%Y-%m-%d %H:%M:%S" "$file")"
+    echo ""
+    
+    if command -v jq >/dev/null 2>&1; then
+        echo "  $(t "detail_summary"):"
+        local primary=$(jq -r '.agents.defaults.model.primary // "N/A"' "$file" 2>/dev/null)
+        echo "    $(t "detail_primary"): $primary"
+    fi
+    
+    echo ""
+    echo "  $(t "actions"): [R]$(t "action_rollback") [D]$(t "action_delete") [V]$(t "view_full") [C]$(t "action_compare") [ESC]$(t "back")"
+    IFS= read -rs -n1 choice
+    
+    case "$choice" in
+        $'\e')
+            # ESC 返回
+            read -rs -t 0.1 -n2 rest 2>/dev/null || true
+            return
+            ;;
+        [Rr]) 
+            confirm_rollback "$name"
+            ;;
+        [Dd]) 
+            confirm_delete "$name"
+            # 删除后返回主菜单，让用户重新进入列表查看最新状态
+            return 1
+            ;;
+        [Vv])
+            # 查看备份文件完整内容
+            clear_screen
+            less -N "$file"
+            ;;
+        [Cc])
+            # 对比配置
+            clear_screen
+            compare_config "$file"
+            ;;
+    esac
+}
+
+# 确认回滚
+confirm_rollback() {
+    local file="$1"
+    local name=$(basename "$file")
+    
+    show_header
+    echo "  $(t "rollback_title")"
+    echo "  ─────────────────────────────────"
+    echo ""
+    echo "  $(t "rollback_target"): $name"
+    echo ""
+    echo "  $(t "rollback_warning")"
+    echo ""
+    echo -n "  $(t "confirm") [y/N]: "
+    read confirm
+    
+    if [[ "$confirm" =~ ^[Yy]$ ]]; then
+        echo ""
+        local backup=$(rollback_to "$name")
+        echo "  $(t "rollback_success")"
+        echo "  $(t "rollback_backup_saved"): $backup"
+        echo ""
+        echo "  $(t "rollback_restart_hint")"
+    else
+        echo ""
+        echo "  $(t "cancelled")"
+    fi
+    
+    echo ""
+    echo -n "  $(t "continue")"
+    read
+}
+
+# 确认删除
+confirm_delete() {
+    local file="$1"
+    local name=$(basename "$file")
+    
+    show_header
+    echo "  $(t "delete_title")"
+    echo "  ─────────────────────────────────"
+    echo ""
+    echo "  $(t "delete_target"): $name"
+    echo ""
+    echo -n "  $(t "confirm") [y/N]: "
+    read confirm
+    
+    if [[ "$confirm" =~ ^[Yy]$ ]]; then
+        delete_snapshot "$name"
+        echo ""
+        echo "  $(t "delete_success")"
+    else
+        echo ""
+        echo "  $(t "cancelled")"
+    fi
+    
+    echo ""
+    echo -n "  $(t "continue")"
+    read
+}
+
+# 删除快照
+do_delete() {
+    local files=()
+    local labels=()
+    local selected=0
+    
+    while IFS= read -r f; do
+        [ -n "$f" ] || continue
+        files+=("$f")
+        local name=$(basename "$f" .json)
+        local mtime=$(stat -c "%y" "$f" 2>/dev/null | cut -d'.' -f1 | cut -d' ' -f1,2)
+        local size=$(du -h "$f" 2>/dev/null | cut -f1)
+        labels+=("${name} | ${mtime} | ${size}")
+    done < <(list_snapshots)
+    
+    if [ ${#files[@]} -eq 0 ]; then
+        show_header
+        echo "  $(t "list_empty")"
+        echo ""
+        echo -n "  $(t "continue")"
+        read
+        return
+    fi
+    
+    local key
+    while true; do
+        show_header
+        echo "  $(t "delete_select")"
+        echo "  $(t "list_navigate")"
+        echo ""
+        
+        for i in "${!labels[@]}"; do
+            if [ $i -eq $selected ]; then
+                echo -e "    [\033[32m●\033[0m ] ${labels[$i]}"
+            else
+                echo "    [  ] ${labels[$i]}"
+            fi
+        done
+        
+        echo ""
+        echo "  $(t "delete_hint")"
+        
+        IFS= read -rs -n1 key
+        
+        # ESC 键返回
+        if [ "$key" = $'\e' ]; then
+            read -rs -t 0.1 -n2 rest 2>/dev/null || true
+            return
+        fi
+        
+        case "$key" in
+            $'\e[A')
+                selected=$(( (selected - 1 + ${#files[@]}) % ${#files[@]} ))
+                ;;
+            $'\e[B')
+                selected=$(( (selected + 1) % ${#files[@]} ))
+                ;;
+            "")
+                confirm_delete "$(basename "${files[$selected]}")"
+                return
+                ;;
+        esac
+    done
+}
+
+# 卸载
+do_uninstall() {
+    show_header
+    echo "  $(t "uninstall_title")"
+    echo "  ────────────────────────────────────"
+    echo ""
+    echo "  $(t "uninstall_desc")"
+    echo ""
+    echo "  $(t "uninstall_option1")"
+    echo "  $(t "uninstall_option2")"
+    echo "  $(t "uninstall_option3")"
+    echo ""
+    echo -n "  $(t "select") [1-3]: "
+    read choice
+    
+    case "$choice" in
+        1)
+            echo ""
+            rm -f "${BIN_DIR}/clawback" 2>/dev/null || true
+            rm -rf "$INSTALL_DIR" 2>/dev/null || true
+            echo "  $(t "uninstall_keep")"
+            echo ""
+            echo "  $(t "uninstall_location"): ${SNAPSHOT_DIR}"
+            echo ""
+            echo -n "  $(t "continue")"
+            read
+            exit 0
+            ;;
+        2)
+            echo ""
+            echo -n "  $(t "confirm") [y/N]: "
+            read confirm
+            if [[ "$confirm" =~ ^[Yy]$ ]]; then
+                rm -f "${BIN_DIR}/clawback" 2>/dev/null || true
+                rm -rf "$INSTALL_DIR" 2>/dev/null || true
+                rm -rf "$SNAPSHOT_DIR" 2>/dev/null || true
+                echo "  $(t "uninstall_full")"
+                echo ""
+                echo -n "  $(t "continue")"
+                read
+                exit 0
+            else
+                echo "  $(t "cancelled")"
+            fi
+            ;;
+        *)
+            echo "  $(t "cancelled")"
+            ;;
+    esac
+    
+    echo ""
+    echo -n "  $(t "continue")"
+    read
+}
+
+# 对比配置
+compare_config() {
+    local backup_file="$1"
+    
+    show_header
+    echo "  $(t "compare_title")"
+    echo "  ────────────────────────────────────"
+    echo ""
+    
+    # 调用对比脚本
+    if [ -f "${SCRIPT_DIR}/lib/compare.sh" ]; then
+        bash "${SCRIPT_DIR}/lib/compare.sh" "$backup_file" "$JSON_FILE"
+    else
+        echo "  [✗] $(t "compare_not_found")"
+    fi
+    
+    echo ""
+    echo -n "  $(t "continue")"
+    read
+}
+
+# 主循环
+main() {
+    load_language
+    
+    if [ -z "$CLAWBACK_LANG" ]; then
+        select_language
+    fi
+    
+    if [ ! -f "$JSON_FILE" ]; then
+        show_header
+        echo "  [✗] $(t "config_not_found"): $JSON_FILE"
+        echo ""
+        exit 1
+    fi
+    
+    smart_backup "daily-first" > /dev/null 2>&1 || true
+    
+    # 首次启动强制选择语言
+    if [ -z "$CLAWBACK_LANG" ]; then
+        select_language
+    fi
+    
+    while true; do
+        main_menu
+        local choice=$?
+        
+        case $choice in
+            0) do_create ;;
+            1) do_list ;;      # 快照管理与回滚
+            2) select_language ;;
+            3) do_uninstall ;;
+            4) 
+                clear_screen
+                echo ""
+                echo "  $(t "exit_goodbye")"
+                echo ""
+                exit 0
+                ;;
+        esac
+    done
+}
+
+main

@@ -1,0 +1,70 @@
+#!/bin/bash
+# JSON 模块对比工具 - 原型
+# 基于配置模块为单位进行对比，相同模块的差异有高亮标记
+
+compare_json_modules() {
+    local file1="$1"
+    local file2="$2"
+    
+    echo ""
+    echo "╔══════════════════════════════════════════════════════════════╗"
+    echo "║           Clawback - 配置模块对比                            ║"
+    echo "╠══════════════════════════════════════════════════════════════╣"
+    echo "║  左: 备份文件  │  右: 当前配置                               ║"
+    echo "╚══════════════════════════════════════════════════════════════╝"
+    echo ""
+    
+    # 使用 jq 提取所有顶层键（模块）
+    local modules=$(jq -r 'keys[]' "$file1" 2>/dev/null | sort)
+    
+    for module in $modules; do
+        # 检查模块在两个字典中是否存在且相同
+        local val1=$(jq -c ".$module" "$file1" 2>/dev/null)
+        local val2=$(jq -c ".$module" "$file2" 2>/dev/null)
+        
+        if [ "$val1" != "$val2" ]; then
+            # 模块有差异，显示对比
+            echo "┌─────────────────────────────────────────────────────────────┐"
+            echo "│  📦 模块: $module"
+            echo "├───────────────────────────────┬─────────────────────────────┤"
+            
+            # 显示模块内容的差异
+            show_module_diff "$file1" "$file2" "$module"
+            
+            echo "└───────────────────────────────┴─────────────────────────────┘"
+            echo ""
+        fi
+    done
+    
+    echo ""
+    echo "按 Q 返回..."
+}
+
+show_module_diff() {
+    local file1="$1"
+    local file2="$2"
+    local module="$3"
+    
+    # 获取模块内的所有字段
+    local keys=$(jq -r ".$module | keys[]?" "$file1" 2>/dev/null | sort -u)
+    
+    for key in $keys; do
+        local v1=$(jq -r ".$module.$key | tostring" "$file1" 2>/dev/null)
+        local v2=$(jq -r ".$module.$key | tostring" "$file2" 2>/dev/null)
+        
+        if [ "$v1" = "$v2" ]; then
+            # 相同字段
+            printf "│  %-28s │ %-27s │\n" "$key: $v1" "$key: $v2"
+        else
+            # 差异字段 - 高亮显示
+            printf "│  %-28s │ %-27s │ ✎\n" "$key: $v1" "$key: $v2"
+        fi
+    done
+}
+
+# 测试
+if [ $# -eq 2 ]; then
+    compare_json_modules "$1" "$2"
+else
+    echo "用法: $0 <备份文件> <当前文件>"
+fi

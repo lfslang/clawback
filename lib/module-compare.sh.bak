@@ -1,0 +1,88 @@
+#!/bin/bash
+# JSON 模块对比工具 - 改进版
+# 基于配置模块为单位进行对比，显示字段级差异
+
+compare_modules() {
+    local file1="$1"
+    local file2="$2"
+    
+    clear
+    echo ""
+    echo "╔════════════════════════════════════════════════════════════════╗"
+    echo "║              Clawback - 配置模块对比                           ║"
+    echo "╠════════════════════════════════════════════════════════════════╣"
+    echo "║  📁 左: 备份                    │  📄 右: 当前配置              ║"
+    echo "╚════════════════════════════════════════════════════════════════╝"
+    echo ""
+    
+    # 使用 diff 找到差异行，然后解析出模块
+    local diff_output=$(diff -u "$file1" "$file2" 2>/dev/null)
+    
+    if [ -z "$diff_output" ]; then
+        echo "  ✅ 两个文件完全相同，无差异"
+        echo ""
+        echo "按 Q 返回..."
+        return
+    fi
+    
+    # 提取有差异的模块路径
+    echo "  发现差异的模块："
+    echo ""
+    
+    # 显示 agents.defaults.model 的差异（示例）
+    if echo "$diff_output" | grep -q '"primary"\|"fallback"'; then
+        echo "┌────────────────────────────────────────────────────────────────┐"
+        echo "│  📦 模块: agents.defaults.model                                │"
+        echo "├─────────────────────────────────┬──────────────────────────────┤"
+        
+        # 提取 primary 值
+        local p1=$(grep -A2 '"primary"' "$file1" | head -1 | grep -oP '"primary"\s*:\s*"\K[^"]+')
+        local p2=$(grep -A2 '"primary"' "$file2" | head -1 | grep -oP '"primary"\s*:\s*"\K[^"]+')
+        
+        if [ "$p1" = "$p2" ]; then
+            printf "│  primary: %-23s │ primary: %-20s │\n" "$p1" "$p2"
+        else
+            printf "│  primary: %-23s │ primary: %-20s │ ✎\n" "$p1" "$p2"
+        fi
+        
+        # 检查 fallback 是否存在
+        if grep -q '"fallback"' "$file1"; then
+            local f1=$(grep '"fallback"' "$file1" | grep -oP '"fallback"\s*:\s*"\K[^"]+')
+            printf "│  fallback: %-22s │ fallback: %-20s │ ✎\n" "$f1" "(无)"
+        elif grep -q '"fallback"' "$file2"; then
+            local f2=$(grep '"fallback"' "$file2" | grep -oP '"fallback"\s*:\s*"\K[^"]+')
+            printf "│  fallback: %-22s │ fallback: %-20s │ ✎\n" "(无)" "$f2"
+        fi
+        
+        echo "└─────────────────────────────────┴──────────────────────────────┘"
+        echo ""
+    fi
+    
+    # 显示其他可能有差异的模块
+    for module in meta wizard models tools messages commands session hooks channels gateway skills plugins; do
+        local m1=$(grep -A 100 "\"$module\"" "$file1" 2>/dev/null | grep -B 100 "^  }" | head -20 | md5sum 2>/dev/null)
+        local m2=$(grep -A 100 "\"$module\"" "$file2" 2>/dev/null | grep -B 100 "^  }" | head -20 | md5sum 2>/dev/null)
+        
+        if [ "$m1" != "$m2" ] && [ -n "$m1" ] && [ -n "$m2" ]; then
+            echo "┌────────────────────────────────────────────────────────────────┐"
+            printf "│  📦 模块: %-52s │\n" "$module"
+            echo "├────────────────────────────────────────────────────────────────┤"
+            echo "│  ⚠️  此模块有变更（内容较多，请使用 V 查看完整配置）            │"
+            echo "└────────────────────────────────────────────────────────────────┘"
+            echo ""
+        fi
+    done
+    
+    echo ""
+    echo "  图例: ✎ = 字段有差异"
+    echo ""
+    echo "  操作: [V] 查看完整配置  [R] 回滚到此版本  [Q] 返回"
+    echo ""
+}
+
+# 主程序
+if [ $# -eq 2 ]; then
+    compare_modules "$1" "$2"
+else
+    echo "用法: $0 <备份文件> <当前文件>"
+fi
