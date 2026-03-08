@@ -1,6 +1,10 @@
 #!/bin/bash
 # Clawback - OpenClaw Config Rollback
 # Multi-language TUI
+# 
+# Copyright (c) 2026 Liufs <1936638@qq.com>
+# Licensed under the MIT License
+# 
 # Version: 0.9.111
 
 # 获取脚本真实路径（处理符号链接）

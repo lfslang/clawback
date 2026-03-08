@@ -1,4 +1,3 @@
-#!/bin/bash
 # OpenClaw Config Rollback Manager
 # 智能备份 + TUI 交互
 
