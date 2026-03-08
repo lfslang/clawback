@@ -1,0 +1,109 @@
+# Contributing to Clawback
+
+感谢你对 Clawback 项目的关注！我们欢迎所有形式的贡献。
+
+## 🚀 如何贡献
+
+### 报告问题
+
+如果你发现了 bug 或有功能建议：
+
+1. 先搜索已有的 issues，避免重复
+2. 创建新 issue 时，请提供：
+   - 问题描述
+   - 复现步骤
+   - 期望行为
+   - 实际行为
+   - 环境信息（操作系统、Bash 版本等）
+
+### 提交代码
+
+1. **Fork** 这个仓库
+2. **Clone** 你的 fork
+   ```bash
+   git clone https://github.com/yourusername/clawback.git
+   ```
+3. **创建分支**
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+4. **提交修改**
+   ```bash
+   git add .
+   git commit -m "v0.9.xxx: 描述你的修改"
+   ```
+5. **推送到你的 fork**
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+6. **创建 Pull Request**
+
+### 开发规范
+
+#### 代码风格
+
+- 使用 4 空格缩进
+- 变量名使用小写加下划线
+- 函数名使用小写加下划线
+- 添加适当的注释
+
+#### 提交信息格式
+
+```
+v0.9.xxx: 简短描述
+
+- 详细变更1
+- 详细变更2
+```
+
+#### 版本号规则
+
+- 格式: `0.9.xxx`
+- 每次提交 xxx + 1
+- 不要跳跃版本号
+
+#### 语言包更新
+
+如果修改了界面文字：
+
+1. 更新所有语言包（en, zh, ja, de, es, fr, ko）
+2. 保持字段数量一致
+3. 测试语言切换功能
+
+### 测试
+
+提交前请确保：
+
+- [ ] 代码可以正常运行
+- [ ] 没有语法错误 `bash -n script.sh`
+- [ ] 功能测试通过
+- [ ] 语言包同步更新
+
+### 文档
+
+如果添加了新功能，请更新：
+
+- README.md
+- CHANGELOG.md
+- 相关注释和文档
+
+## 🌐 多语言贡献
+
+我们欢迎语言包的改进：
+
+1. 编辑 `lang/xx.sh` 文件
+2. 确保所有字段都有翻译
+3. 测试语言切换
+4. 提交 PR
+
+## 📞 联系方式
+
+- GitHub Issues: [项目 issues 页面](https://github.com/yourusername/clawback/issues)
+
+## 🙏 感谢
+
+感谢所有贡献者让这个项目变得更好！
+
+---
+
+**注意**: 提交 PR 即表示你同意将你的贡献按照 MIT 许可证授权。
