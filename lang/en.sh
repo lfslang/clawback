@@ -130,7 +130,7 @@ t() {
         "install_detect_suggest") echo "Suggestions" ;;
         "install_detect_continue") echo "Continue installation?" ;;
         
-        # 通用
+        # General
         "cancelled") echo "Cancelled" ;;
         "continue") echo "Press Enter to continue..." ;;
         "exit_goodbye") echo "Goodbye!" ;;
@@ -138,6 +138,8 @@ t() {
         "select") echo "Select" ;;
         "confirm") echo "Confirm" ;;
         "config_not_found") echo "OpenClaw config not found" ;;
+        "copyright") echo "© 2026 Liufs <1936638@qq.com>" ;;
+        "license") echo "MIT License" ;;
         
         # 默认：返回键名
         *) echo "$key" ;;

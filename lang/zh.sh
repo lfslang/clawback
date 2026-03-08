@@ -137,6 +137,8 @@ t() {
         "select") echo "选择" ;;
         "confirm") echo "确认" ;;
         "config_not_found") echo "未找到 OpenClaw 配置" ;;
+        "copyright") echo "© 2026 Liufs <1936638@qq.com>" ;;
+        "license") echo "MIT 许可证" ;;
         
         # 默认：返回键名
         *) echo "$key" ;;

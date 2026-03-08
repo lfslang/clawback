@@ -104,6 +104,13 @@ if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
     exit 0
 fi
 
+if [ "$1" = "--version" ] || [ "$1" = "-v" ]; then
+    echo "Clawback $VERSION"
+    echo "Copyright (c) 2026 Liufs <1936638@qq.com>"
+    echo "Licensed under the MIT License"
+    exit 0
+fi
+
 # 清屏
 clear_screen() {
     printf '\033[2J\033[H'
@@ -116,6 +123,7 @@ show_header() {
     echo "  $(t "title")"
     echo "  ────────────────────────────────────"
     echo "  Version: $VERSION"
+    echo "  © 2026 Liufs <1936638@qq.com>"
     echo ""
 }
 
