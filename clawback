@@ -65,7 +65,7 @@ load_language
 # 加载动态语言包
 load_language_files
 
-VERSION="0.9.169"
+VERSION="0.9.170"
 
 # 确保 HOME 变量设置
 if [ -z "$HOME" ]; then
