@@ -15,7 +15,7 @@ t() {
         
         # Menú principal / Main Menu
         "menu_navigate") echo "Usa ↑↓ para navegar, Enter para seleccionar:" ;;
-        "menu_create") echo "Crear snapshot[manual]" ;;
+        "menu_create") echo "Crear snapshot manual" ;;
         "menu_list") echo "Gestión de Snapshots y Rollback" ;;
         "menu_rollback") echo "Rollback a snapshot anterior" ;;
         "menu_delete") echo "Eliminar snapshot" ;;

@@ -15,7 +15,7 @@ t() {
         
         # 메인 메뉴 / Main Menu
         "menu_navigate") echo "↑↓로 선택, Enter로 확인:" ;;
-        "menu_create") echo "스냅샷 생성[manual]" ;;
+        "menu_create") echo "수동 스냅샷 생성" ;;
         "menu_list") echo "스냅샷 관리 및 롤백" ;;
         "menu_rollback") echo "이전 스냅샷으로 롤백" ;;
         "menu_delete") echo "스냅샷 삭제" ;;

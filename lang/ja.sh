@@ -15,7 +15,7 @@ t() {
         
         # メインメニュー / Main Menu
         "menu_navigate") echo "↑↓ で選択、Enter で決定：" ;;
-        "menu_create") echo "スナップショット作成[manual]" ;;
+        "menu_create") echo "手動スナップショット作成" ;;
         "menu_list") echo "スナップショット管理とロールバック" ;;
         "menu_rollback") echo "以前のスナップショットにロールバック" ;;
         "menu_delete") echo "スナップショットを削除" ;;
