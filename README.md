@@ -30,16 +30,56 @@ Clawback is a backup and rollback tool for OpenClaw configuration management. It
 
 ## 🚀 Quick Start
 
-### Installation
+### One-line Installer (Recommended)
 
 ```bash
-# Download and extract
-tar -xzf clawback-0.9.176.tar.gz
-cd clawback-0.9.176
+curl -fsSL https://raw.githubusercontent.com/lfslang/clawback/main/install-remote.sh | bash
+```
 
-# Run install script
+Or with wget:
+
+```bash
+wget -qO- https://raw.githubusercontent.com/lfslang/clawback/main/install-remote.sh | bash
+```
+
+### Download Release
+
+```bash
+# Download latest release
+wget https://github.com/lfslang/clawback/releases/latest/download/clawback-0.9.181.tar.gz
+
+# Extract and install
+tar -xzf clawback-0.9.181.tar.gz
+cd clawback-0.9.181
 ./install.sh
 ```
+
+### Clone from Source
+
+```bash
+# Clone repository
+git clone https://github.com/lfslang/clawback.git
+cd clawback
+
+# Install
+./install.sh
+```
+
+### Docker
+
+```bash
+# Run with Docker
+docker run -it --rm \
+  -v ~/.openclaw:/root/.openclaw \
+  -v ~/.local/share/clawback:/root/.local/share/clawback \
+  lfslang/clawback:latest
+```
+
+See [docs/DOCKER.md](docs/DOCKER.md) for more Docker options.
+
+### Package Managers
+
+See [docs/PACKAGE_MANAGER.md](docs/PACKAGE_MANAGER.md) for package manager installation options (Homebrew, APT, YUM, etc.)
 
 ### Usage
 
