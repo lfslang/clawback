@@ -15,12 +15,12 @@ t() {
         
         # 메인 메뉴 / Main Menu
         "menu_navigate") echo "↑↓로 선택, Enter로 확인:" ;;
-        "menu_create") echo "스냅샷 생성 (라벨이 있는 수동 백업)" ;;
+        "menu_create") echo "스냅샷 생성[manual]" ;;
         "menu_list") echo "스냅샷 관리 및 롤백" ;;
         "menu_rollback") echo "이전 스냅샷으로 롤백" ;;
         "menu_delete") echo "스냅샷 삭제" ;;
         "menu_restart") echo "백업하고 OpenClaw 재시작" ;;
-        "menu_language") echo "언어 변경 [language]" ;;
+        "menu_language") echo "언어 변경[language]" ;;
         "menu_uninstall") echo "clawback 제거" ;;
         "menu_exit") echo "종료 [ESC]" ;;
         
@@ -38,7 +38,8 @@ t() {
         # 목록 / List
         "list_title") echo "스냅샷 목록" ;;
         "list_empty") echo "스냅샷을 찾을 수 없습니다" ;;
-        "list_navigate") echo "작업: [R]롤백 [D]삭제 [V]보기 [C]비교 [ESC]뒤로" ;;
+        "list_navigate") echo " [V]보기 모드 ([Q]보기 모드 종료)" ;;
+        "detail_navigate") echo " [R]롤백 [D]삭제 [C]비교 [ESC]뒤로" ;;
         
         # 상세 / Details
         "detail_title") echo "스냅샷 상세" ;;

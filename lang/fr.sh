@@ -15,12 +15,12 @@ t() {
         
         # Menu principal / Main Menu
         "menu_navigate") echo "Utilisez ↑↓ pour naviguer, Entrée pour sélectionner:" ;;
-        "menu_create") echo "Créer un snapshot (sauvegarde manuelle avec étiquette)" ;;
+        "menu_create") echo "Créer un snapshot[manual]" ;;
         "menu_list") echo "Gestion des Snapshots et Rollback" ;;
         "menu_rollback") echo "Rollback vers un snapshot précédent" ;;
         "menu_delete") echo "Supprimer le snapshot" ;;
         "menu_restart") echo "Sauvegarder et redémarrer OpenClaw" ;;
-        "menu_language") echo "Changer de langue [language]" ;;
+        "menu_language") echo "Changer de langue[language]" ;;
         "menu_uninstall") echo "Désinstaller clawback" ;;
         "menu_exit") echo "Quitter [ESC]" ;;
         
@@ -38,7 +38,8 @@ t() {
         # Liste / List
         "list_title") echo "Liste des snapshots" ;;
         "list_empty") echo "Aucun snapshot trouvé" ;;
-        "list_navigate") echo "Actions: [R]Rollback [D]Supprimer [V]Voir [C]Comparer [ESC]Retour" ;;
+        "list_navigate") echo " [V]Mode vue ([Q]Quitter mode vue)" ;;
+        "detail_navigate") echo " [R]Rollback [D]Supprimer [C]Comparer [ESC]Retour" ;;
         
         # Détails / Details
         "detail_title") echo "Détails du snapshot" ;;

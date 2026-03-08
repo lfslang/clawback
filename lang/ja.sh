@@ -15,12 +15,12 @@ t() {
         
         # メインメニュー / Main Menu
         "menu_navigate") echo "↑↓ で選択、Enter で決定：" ;;
-        "menu_create") echo "スナップショット作成（ラベル付き手動バックアップ）" ;;
+        "menu_create") echo "スナップショット作成[manual]" ;;
         "menu_list") echo "スナップショット管理とロールバック" ;;
         "menu_rollback") echo "以前のスナップショットにロールバック" ;;
         "menu_delete") echo "スナップショットを削除" ;;
         "menu_restart") echo "バックアップして OpenClaw を再起動" ;;
-        "menu_language") echo "言語を変更 [language]" ;;
+        "menu_language") echo "言語を変更[language]" ;;
         "menu_uninstall") echo "clawback をアンインストール" ;;
         "menu_exit") echo "終了 [ESC]" ;;
         
@@ -38,7 +38,8 @@ t() {
         # リスト / List
         "list_title") echo "スナップショット一覧" ;;
         "list_empty") echo "スナップショットが見つかりません" ;;
-        "list_navigate") echo "操作: [R]ロールバック [D]削除 [V]表示 [C]比較 [ESC]戻る" ;;
+        "list_navigate") echo " [V]表示モード ([Q]表示モードを終了)" ;;
+        "detail_navigate") echo " [R]ロールバック [D]削除 [C]比較 [ESC]戻る" ;;
         
         # 詳細 / Details
         "detail_title") echo "スナップショット詳細" ;;

@@ -14,12 +14,12 @@ t() {
         
         # 主菜单
         "menu_navigate") echo "使用 ↑↓ 选择，回车确认：" ;;
-        "menu_create") echo "创建快照（带标签的手动备份）" ;;
+        "menu_create") echo "手动创建快照" ;;
         "menu_list") echo "快照管理与回滚" ;;
         "menu_rollback") echo "回滚到之前的快照" ;;
         "menu_delete") echo "删除快照" ;;
         "menu_restart") echo "备份并重启 OpenClaw" ;;
-        "menu_language") echo "切换语言 [language]" ;;
+        "menu_language") echo "切换语言[language]" ;;
         "menu_uninstall") echo "卸载 clawback" ;;
         "menu_exit") echo "退出 [ESC]" ;;
         
@@ -37,7 +37,8 @@ t() {
         # 列表
         "list_title") echo "快照列表" ;;
         "list_empty") echo "没有找到快照" ;;
-        "list_navigate") echo "[V]查看 [ESC]返回 | [R]回滚 [D]删除 [C]对比" ;;
+        "list_navigate") echo " [V]查看模式 ([Q]退出查看模式)" ;;
+        "detail_navigate") echo " [R]回滚 [D]删除 [C]对比 [ESC]返回" ;;
         
         # 详情
         "detail_title") echo "快照详情" ;;

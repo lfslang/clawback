@@ -15,12 +15,12 @@ t() {
         
         # 主菜单
         "menu_navigate") echo "Use ↑↓ to navigate, Enter to select:" ;;
-        "menu_create") echo "Create snapshot (manual backup with label)" ;;
+        "menu_create") echo "Manual create snapshot" ;;
         "menu_list") echo "Snapshot Management and Rollback" ;;
         "menu_rollback") echo "Rollback to previous snapshot" ;;
         "menu_delete") echo "Delete snapshot" ;;
         "menu_restart") echo "Backup and restart OpenClaw" ;;
-        "menu_language") echo "Change Language [language]" ;;
+        "menu_language") echo "Change Language[language]" ;;
         "menu_uninstall") echo "Uninstall clawback" ;;
         "menu_exit") echo "Exit [ESC]" ;;
         
@@ -38,7 +38,8 @@ t() {
         # 列表
         "list_title") echo "Snapshot List" ;;
         "list_empty") echo "No snapshots found" ;;
-        "list_navigate") echo "[V]View [ESC]Back | [R]Rollback [D]Delete [C]Compare" ;;
+        "list_navigate") echo " [V]View mode ([Q]Exit view mode)" ;;
+        "detail_navigate") echo " [R]Rollback [D]Delete [C]Compare [ESC]Back" ;;
         
         # 详情
         "detail_title") echo "Snapshot Details" ;;
