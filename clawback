@@ -268,18 +268,6 @@ do_create() {
     echo "  ─────────────────────────────────"
     echo ""
     
-    # 检查是否允许创建手动备份（防止短时间内重复创建）
-    if ! can_create_manual_backup; then
-        local last_manual=$(get_last_manual_backup_time)
-        local current_time=$(date +%s)
-        local wait_time=$((MIN_MANUAL_INTERVAL - (current_time - last_manual)))
-        echo "  $(t "create_too_frequent" 2>/dev/null || echo "备份太频繁，请等待 ${wait_time} 秒后再试")"
-        echo ""
-        echo -n "  $(t "continue")"
-        read
-        return
-    fi
-    
     echo "  $(t "create_label_prompt")"
     echo "  $(t "esc_cancel")"
     echo ""
