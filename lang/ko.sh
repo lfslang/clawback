@@ -33,6 +33,7 @@ t() {
         "create_label_prompt") echo "라벨 입력 (예: feishu-config-ok):" ;;
         "create_success") echo "[✓] 스냅샷 생성 완료" ;;
         "create_failed") echo "[✗] 생성 실패" ;;
+        "create_too_frequent") echo "[i] 너무 빈번합니다, 5분 후에 다시 시도하세요" ;;
         
         # 목록 / List
         "list_title") echo "스냅샷 목록" ;;
@@ -80,6 +81,8 @@ t() {
         "delete_target") echo "삭제 대상" ;;
         "delete_confirm") echo "이 스냅샷을 삭제하시겠습니까?" ;;
         "delete_success") echo "[✓] 삭제되었습니다" ;;
+        "delete_select") echo "삭제할 스냅샷 선택" ;;
+        "delete_hint") echo "(Enter 확인, Q 취소)" ;;
         
         # 재시작 / Restart
         "restart_title") echo "백업 및 재시작" ;;

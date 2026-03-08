@@ -33,6 +33,7 @@ t() {
         "create_label_prompt") echo "Enter a label (e.g., feishu-config-ok):" ;;
         "create_success") echo "[✓] Snapshot created" ;;
         "create_failed") echo "[✗] Failed to create" ;;
+        "create_too_frequent") echo "[i] Too frequent, please wait 5 minutes" ;;
         
         # 列表
         "list_title") echo "Snapshot List" ;;
@@ -80,6 +81,8 @@ t() {
         "delete_target") echo "Delete target" ;;
         "delete_confirm") echo "Confirm deletion of this snapshot?" ;;
         "delete_success") echo "[✓] Deleted" ;;
+        "delete_select") echo "Select snapshot to delete" ;;
+        "delete_hint") echo "(Enter to confirm, Q to cancel)" ;;
         
         # 重启
         "restart_title") echo "Backup and Restart" ;;

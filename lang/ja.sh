@@ -33,6 +33,7 @@ t() {
         "create_label_prompt") echo "ラベルを入力（例：feishu-config-ok）：" ;;
         "create_success") echo "[✓] スナップショット作成完了" ;;
         "create_failed") echo "[✗] 作成に失敗しました" ;;
+        "create_too_frequent") echo "[i] 頻繁すぎます、5分後に再試行してください" ;;
         
         # リスト / List
         "list_title") echo "スナップショット一覧" ;;
@@ -80,6 +81,8 @@ t() {
         "delete_target") echo "削除対象" ;;
         "delete_confirm") echo "このスナップショットを削除しますか？" ;;
         "delete_success") echo "[✓] 削除しました" ;;
+        "delete_select") echo "削除するスナップショットを選択" ;;
+        "delete_hint") echo "（Enter で削除、Q でキャンセル）" ;;
         
         # 再起動 / Restart
         "restart_title") echo "バックアップと再起動" ;;
